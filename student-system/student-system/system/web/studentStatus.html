@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学籍页面</title>
+    <style>
+        /* 现有样式 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 200px;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        input[type="submit"]:hover {
+            background: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        /* 新增的按钮样式 */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        /* 删除按钮样式 */
+        .delete-button {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .delete-button:hover {
+            background: #c82333;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <form id="studentForm" action="/studentStatus/updateStudentStatus" method="post">
+        <label for="studentId">学号:</label>
+        <input type="text" id="studentId" name="studentId"><br>
+        <label for="change">学籍变更:</label>
+        <input type="text" id="change" name="change"><br>
+        <label for="description">描述:</label>
+        <input type="text" id="description" name="description"><br><br>
+        <input type="submit" value="提交">
+    </form>
+
+    <div>
+        <div class="button-container">
+            <button id="refreshButton">刷新</button>
+            <button id="logoutButton">返回</button>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>记录号</th>
+                <th>学号</th>
+                <th>变更</th>
+                <th>描述</th>
+                <th>修改时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="studentTableBody">
+            <!-- 学籍信息将在这里动态显示 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // 页面加载时自动刷新表格
+        refreshTable();
+
+        // 提交表单时触发 AJAX 请求
+        $('#studentForm').on('submit', function (event) {
+            event.preventDefault(); // 阻止表单默认提交行为
+
+            const studentId = $('#studentId').val();
+            const change = $('#change').val();
+            const description = $('#description').val();
+
+            // 发送 AJAX 请求到 /studentStatus/updateStudentStatus
+            $.ajax({
+                url: '/studentStatus/updateStudentStatus',
+                method: 'POST',
+                data: {
+                    studentId: studentId,
+                    change: change,
+                    description: description
+                },
+                success: function (response) {
+                    if (response.code === 200 && response.message === 'success') {
+                        alert('学籍信息更新成功');
+                        // 刷新表格
+                        refreshTable();
+                    } else {
+                        console.error('更新失败:', response.message);
+                    }
+                },
+                error: function (error) {
+                    console.error('请求失败:', error);
+                }
+            });
+        });
+
+        // 刷新按钮点击事件
+        $('#refreshButton').on('click', function (event) {
+            event.preventDefault(); // 阻止默认行为
+            refreshTable();
+        });
+
+        // 退出按钮点击事件
+        $('#logoutButton').on('click', function (event) {
+            event.preventDefault(); // 阻止默认行为
+            window.location.href = 'teacher.html';
+        });
+
+        // 刷新表格的函数
+        function refreshTable() {
+            $.ajax({
+                url: '/studentStatus/findStudentStatus',
+                method: 'GET',
+                success: function (response) {
+                    if (response.code === 200 && response.message === 'success') {
+                        displaySearchResults(response.data);
+                    } else {
+                        console.error('无效的 JSON 数据');
+                    }
+                },
+                error: function (error) {
+                    console.error('请求失败:', error);
+                }
+            });
+        }
+
+        // 显示查询结果的函数
+        function displaySearchResults(data) {
+            const tbody = $('#studentTableBody');
+            tbody.empty();
+            // 将对象转换为数组
+            const dataArray = Object.values(data);
+            dataArray.forEach(function(student) {
+                const row = $('<tr></tr>');
+                row.append('<td>' + student.id + '</td>');
+                row.append('<td>' + student.studentId + '</td>');
+                row.append('<td>' + student.change + '</td>');
+                row.append('<td>' + student.description + '</td>');
+                row.append('<td>' + student.recTime + '</td>');
+                const deleteButton = $('<button class="delete-button">删除</button>').data('id', student.id);
+                deleteButton.on('click', function() {
+                    deleteStudent($(this).data('id'));
+                });
+                row.append('<td>' + deleteButton[0].outerHTML + '</td>');
+                tbody.append(row);
+            });
+        }
+
+
+        // 删除学生的函数
+        function deleteStudent(id) {
+            if (confirm('确定要删除该学籍信息吗？')) {
+                $.ajax({
+                    url: '/studentStatus/deleteStatusById',
+                    method: 'POST',
+                    data:{
+                        id:id
+                    },
+                    success: function (response) {
+                        if (response.code === 200 && response.message === 'success') {
+                            alert('学籍信息删除成功');
+                            refreshTable();
+                        } else {
+                            console.error('删除失败:', response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('请求失败:', status, error);
+                        alert('请求失败: ' + status + ', ' + error);
+                    }
+                });
+            }
+        }
+    });
+</script>
+</body>
+</html>

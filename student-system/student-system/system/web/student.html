@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学生页面</title>
+    <style>
+ body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        body {
+            background-image: url("image/20241104120800.jpg"); /* 替换为你的背景图路径 */
+            background-size: cover; /* 背景图覆盖整个页面 */
+            background-position: center; /* 背景图居中显示 */
+            background-attachment: fixed; /* 背景图固定，不随滚动条滚动 */
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        #information {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        form {
+            background: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
+            padding: 20px;
+            border-radius: 10px; /* 圆角边框 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+            width: 300px;
+            max-width: 100%; /* 响应式设计 */
+        }
+        .form-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .form-label {
+            text-align: right;
+            width: 100px;
+        }
+        .form-input {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box; /* 确保内边距不增加元素的总宽度 */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* 美化提交按钮 */
+        .submit-button, .logout-button {
+            padding: 8px; /* 减小内边距 */
+            background-color: #4CAF50; /* 按钮背景颜色 */
+            color: white; /* 文字颜色 */
+            border: none; /* 无边框 */
+            border-radius: 4px; /* 圆角边框 */
+            cursor: pointer; /* 鼠标悬停时显示手指指针 */
+            font-size: 14px; /* 减小字体大小 */
+            transition: background-color 0.3s; /* 平滑过渡效果 */
+            text-decoration: none; /* 去掉链接的下划线 */
+            display: inline-block; /* 使链接块级化 */
+            width: auto; /* 自动宽度 */
+        }
+
+        .submit-button:hover, .logout-button:hover {
+            background-color: #45a049; /* 鼠标悬停时的背景颜色 */
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between; /* 左右对齐 */
+        }
+
+        /* 美化表格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<div id="information">
+    <form id="data-form" method="post" action="/student/insertStudent">
+        <div class="form-title">
+            请输入个人信息
+        </div>
+        <div class="form-row">
+            <label class="form-label">学号：</label>
+            <input class="form-input" type="text" name="studentId">
+        </div>
+        <div class="form-row">
+            <label class="form-label">名字：</label>
+            <input class="form-input" type="text" name="name">
+        </div>
+        <div class="form-row">
+            <label class="form-label">性别：</label>
+            <input class="form-input" type="text" name="sex">
+        </div>
+        <div class="form-row">
+            <label class="form-label">班级编号：</label>
+            <input class="form-input" type="text" name="clazz">
+        </div>
+        <div class="form-row">
+            <label class="form-label">学院编号：</label>
+            <input class="form-input" type="text" name="department">
+        </div>
+        <div class="form-row">
+            <label class="form-label">生日：</label>
+            <input class="form-input" type="date" name="birthday">
+        </div>
+        <div class="form-row">
+            <label class="form-label">籍贯：</label>
+            <input class="form-input" type="text" name="nativePlace">
+        </div>
+
+        <div class="button-container">
+            <input class="submit-button" type="submit" value="提交">
+            <button id="queryButton">查询</button>
+
+            <a href="index.html" class="logout-button">退出</a>
+        </div>
+    </form>
+    <div id="response-container" style="margin-top: 20px; text-align: center;"></div>
+</div>
+<script>
+// 获取查询按钮和响应容器
+    const queryButton = document.getElementById('queryButton');
+    const responseContainer = document.getElementById('response-container');
+
+    // 为查询按钮添加点击事件监听器
+    queryButton.addEventListener('click', function(event) {
+        event.preventDefault(); // 阻止默认表单提交行为
+
+        // 获取表单数据
+        const formData = new FormData(document.getElementById('data-form'));
+
+        // 使用fetch发送请求到后端
+        fetch('/student/selectByName', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json()) // 解析JSON响应
+        .then(data => {
+            // 检查响应代码
+            if (data.code === 200 && data.message === "success") {
+                // 处理返回的数据并展示在表格中
+                displayDataInTable(data.data);
+            } else {
+                // 显示错误消息
+                responseContainer.innerHTML = '查询失败: ' + data.message;
+            }
+        })
+        .catch(error => {
+            // 处理错误
+            console.error('Error:', error);
+            responseContainer.innerHTML = '查询失败';
+        });
+    });
+
+    // 函数：在表格中展示数据
+    function displayDataInTable(data) {
+        // 创建表格
+        const table = document.createElement('table');
+        table.innerHTML = `
+            <tr>
+                <th>学号</th>
+                <th>名字</th>
+                <th>性别</th>
+                <th>班级编号</th>
+                <th>学院编号</th>
+                <th>生日</th>
+                <th>籍贯</th>
+            </tr>
+            <tr>
+                <td>${data.studentId}</td>
+                <td>${data.name}</td>
+                <td>${data.sex}</td>
+                <td>${data.clazz}</td>
+                <td>${data.department}</td>
+                <td>${data.birthday}</td>
+                <td>${data.nativePlace}</td>
+            </tr>
+        `;
+        // 将表格添加到响应容器中
+        responseContainer.innerHTML = '';
+        responseContainer.appendChild(table);
+    }
+
+</script>
+</body>
+</html>

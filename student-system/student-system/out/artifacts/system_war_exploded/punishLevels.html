@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>惩罚情况</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"][readonly] {
+            background-color: #f9f9f9;
+        }
+
+        button {
+            width: 45%;
+            padding: 8px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            width: 45%;
+            margin: 0 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>惩罚情况</h1>
+        <form id="punishForm">
+            <label for="studentId">学号:</label>
+            <input type="text" id="studentId" name="studentId" required><br>
+
+            <label for="levels">级别代码:</label>
+            <input type="text" id="levels" name="levels" required><br>
+
+            <label for="enable">是否生效:</label>
+            <select id="enable" name="enable" required>
+                <option value="T">是</option>
+                <option value="F">否</option>
+            </select><br>
+
+            <label for="description">描述:</label>
+            <textarea id="description" name="description" rows="4" cols="50"></textarea><br>
+
+            <div class="button-group">
+                <button type="submit">提交</button>
+                <button type="button" id="refreshPageBtn">刷新</button>
+            </div>
+            <button type="button" id="goBackBtn">返回</button>
+        </form>
+
+        <table id="punishmentsTable">
+            <thead>
+                <tr>
+                    <th>记录号</th>
+                    <th>学号</th>
+                    <th>级别代码</th>
+                    <th>记录时间</th>
+                    <th>是否生效</th>
+                    <th>描述</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+
+        function goBack() {
+            window.location.href = "teacher.html";
+        }
+
+        $(document).ready(function() {
+            // 提交表单时触发 AJAX 请求
+            $('#punishForm').on('submit', function(event) {
+                event.preventDefault(); // 阻止表单默认提交行为
+
+                const studentId = $('#studentId').val();
+                const levels = $('#levels').val();
+                const enable = $('#enable').val();
+                const description = $('#description').val();
+
+                // 发送 AJAX 请求到 /studentPunishment/
+                $.ajax({
+                    url: '/punishment/insertPunishment',
+                    method: 'POST',
+                    data: {
+                        studentId: studentId,
+                        levels: levels,
+                        enable: enable,
+                        description: description
+                    },
+                    success: function(response) {
+                        if (response.code === 200 && response.message === 'success') {
+                            alert('惩罚信息提交成功');
+                            // 刷新表格
+                            refreshTable();
+                        } else {
+                            console.error('提交失败:', response.message);
+                        }
+                    },
+                    error: function(error) {
+                        console.error('请求失败:', error);
+                    }
+                });
+            });
+
+            // 绑定刷新按钮的点击事件
+            $('#refreshPageBtn').on('click', function(event) {
+                event.preventDefault(); // 阻止默认行为
+                refreshTable();
+            });
+
+            // 绑定返回按钮的点击事件
+            $('#goBackBtn').on('click', function(event) {
+                event.preventDefault(); // 阻止默认行为
+                goBack();
+            });
+
+            // 刷新表格的函数
+            function refreshTable() {
+                $.ajax({
+                    url: '/punishment/findAllPunishments',
+                    method: 'POST',
+                    data: {},
+                    success: function(response) {
+                        if (response.code === 200 && response.message === 'success') {
+                            displayPunishments(response.data);
+                        } else {
+                            console.error('无效的 JSON 数据');
+                        }
+                    },
+                    error: function(error) {
+                        console.error('请求失败:', error);
+                    }
+                });
+            }
+
+            // 初始化加载数据
+            refreshTable();
+        });
+
+        function displayPunishments(punishments) {
+            const tbody = document.querySelector('#punishmentsTable tbody');
+            tbody.innerHTML = '';
+
+            for (const key in punishments) {
+                const punishment = punishments[key];
+                const row = createPunishmentRow(punishment);
+                tbody.appendChild(row);
+            }
+        }
+
+        function createPunishmentRow(punishment) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${punishment.id}</td>
+                <td>${punishment.studentId}</td>
+                <td>${punishment.levels}</td>
+                <td>${punishment.recTime}</td>
+                <td>${punishment.enable === 'T' ? '是' : '否'}</td>
+                <td>${punishment.description}</td>
+                <td><button class="delete-btn" data-id="${punishment.id}">删除</button></td>
+            `;
+            return row;
+        }
+
+        // 绑定删除按钮的点击事件
+        $(document).on('click', '.delete-btn', function() {
+            const id = $(this).data('id');
+            deletePunishment(id);
+        });
+
+        function deletePunishment(id) {
+            $.ajax({
+                url: '/punishment/deleteById',
+                method: 'POST',
+                data: {
+                    id: id
+                },
+                success: function(response) {
+                    if (response.code === 200 && response.message === 'success') {
+                        alert('惩罚信息删除成功');
+                        refreshTable();
+                    } else {
+                        console.error('删除失败:', response.message);
+                    }
+                },
+                error: function(error) {
+                    console.error('请求失败:', error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

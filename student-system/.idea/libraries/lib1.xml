@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="lib1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/student-system/out/artifacts/system_war_exploded/WEB-INF/lib/jackson-annotations-2.13.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/student-system/out/artifacts/system_war_exploded/WEB-INF/lib/lombok-1.18.34.jar!/" />
+      <root url="jar://$PROJECT_DIR$/student-system/out/artifacts/system_war_exploded/WEB-INF/lib/mysql-connector-java-8.0.25.jar!/" />
+      <root url="jar://$PROJECT_DIR$/student-system/out/artifacts/system_war_exploded/WEB-INF/lib/jackson-core-2.13.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/student-system/out/artifacts/system_war_exploded/WEB-INF/lib/druid-1.1.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/student-system/out/artifacts/system_war_exploded/WEB-INF/lib/junit-4.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/student-system/out/artifacts/system_war_exploded/WEB-INF/lib/jaxb-api-2.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/student-system/out/artifacts/system_war_exploded/WEB-INF/lib/jackson-databind-2.13.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/student-system/out/artifacts/system_war_exploded/WEB-INF/lib/jjwt-0.9.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查询修改</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        body {
+            background-image: url("image/20241104120800.jpg"); /* 替换为你的背景图路径 */
+            background-size: cover; /* 背景图覆盖整个页面 */
+            background-position: center; /* 背景图居中显示 */
+            background-attachment: fixed; /* 背景图固定，不随滚动条滚动 */
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        #container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            height: 100%;
+            padding: 20px;
+        }
+        form {
+            background: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
+            padding: 20px;
+            border-radius: 10px; /* 圆角边框 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+            width: 300px;
+            max-width: 100%; /* 响应式设计 */
+        }
+        .form-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .form-label {
+            text-align: right;
+            width: 100px;
+        }
+        .form-input {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box; /* 确保内边距不增加元素的总宽度 */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* 美化提交按钮和查询按钮 */
+        .submit-button, .query-button {
+            padding: 8px 12px; /* 减小内边距 */
+            background-color: #4CAF50; /* 按钮背景颜色 */
+            color: white; /* 文字颜色 */
+            border: none; /* 无边框 */
+            border-radius: 4px; /* 圆角边框 */
+            cursor: pointer; /* 鼠标悬停时显示手指指针 */
+            font-size: 14px; /* 减小字体大小 */
+            transition: background-color 0.3s; /* 平滑过渡效果 */
+        }
+
+        .submit-button:hover, .query-button:hover {
+            background-color: #45a049; /* 鼠标悬停时的背景颜色 */
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        /* 退出按钮样式 */
+        .logout-button {
+            width: 15%; /* 按钮宽度 */
+            padding: 10px;
+            background-color: #4CAF50; /* 按钮背景颜色 */
+            color: white; /* 文字颜色 */
+            border: none; /* 无边框 */
+            border-radius: 4px; /* 圆角边框 */
+            cursor: pointer; /* 鼠标悬停时显示手指指针 */
+            font-size: 16px; /* 字体大小 */
+            transition: background-color 0.3s; /* 平滑过渡效果 */
+            position: absolute; /* 绝对定位 */
+            bottom: 20px; /* 距离底部20px */
+            right: 20px; /* 距离右侧20px */
+        }
+
+        .logout-button:hover {
+            background-color: #45a049; /* 鼠标悬停时的背景颜色 */
+        }
+
+        /* 查询输入框和按钮在同一行 */
+        .query-form {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .query-form input[type="text"] {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        /* 删除按钮样式 */
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: background-color 0.3s;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+<h1>查询修改</h1>
+
+<div id="container">
+    <form id="data-form" method="post" action="/student/updateStudent">
+        <div class="form-title">
+            修改学生信息
+        </div>
+        <div class="form-row">
+            <label class="form-label">学号：</label>
+            <input class="form-input" type="text" name="studentId">
+        </div>
+        <div class="form-row">
+            <label class="form-label">名字：</label>
+            <input class="form-input" type="text" name="name">
+        </div>
+        <div class="form-row">
+            <label class="form-label">性别：</label>
+            <input class="form-input" type="text" name="sex">
+        </div>
+        <div class="form-row">
+            <label class="form-label">班级编号：</label>
+            <input class="form-input" type="text" name="clazz">
+        </div>
+        <div class="form-row">
+            <label class="form-label">学院编号：</label>
+            <input class="form-input" type="text" name="department">
+        </div>
+        <div class="form-row">
+            <label class="form-label">生日：</label>
+            <input class="form-input" type="date" name="birthday">
+        </div>
+        <div class="form-row">
+            <label class="form-label">籍贯：</label>
+            <input class="form-input" type="text" name="nativePlace">
+        </div>
+        <div class="form-row">
+            <input class="submit-button" type="submit" value="提交">
+        </div>
+    </form>
+
+    <div>
+        <form class="query-form" method="post" action="/student/findById">
+            <input type="text" placeholder="请输入学生学号" name="studentId">
+            <input type="submit" value="查询" class="query-button">
+        </form>
+        <table>
+            <thead>
+            <tr>
+                <th>学号</th>
+                <th>名字</th>
+                <th>性别</th>
+                <th>班级编号</th>
+                <th>学院编号</th>
+                <th>生日</th>
+                <th>籍贯</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="student-data">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<button class="logout-button" onclick="navigateToTeacherPage()"> 返回 </button>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function navigateToTeacherPage() {
+        window.location.href = "teacher.html";
+    }
+
+    function fetchStudentData(studentId) {
+        $.ajax({
+            url: '/student/findById', // 后端接口地址
+            method: 'POST',
+            data: { studentId: studentId },
+            success: function(response) {
+                const tbody = $('#student-data');
+                tbody.empty(); // 清空现有数据
+
+                const students = response.data; // 提取嵌套的 data 属性
+
+                if (students && Object.keys(students).length > 0) {
+                    Object.keys(students).forEach(function(key) {
+                        const student = students[key];
+
+                        const row = `<tr>
+                                <td>${student.studentId}</td>
+                                <td>${student.name}</td>
+                                <td>${student.sex}</td>
+                                <td>${student.clazz}</td>
+                                <td>${student.department}</td>
+                                <td>${student.birthday}</td>
+                                <td>${student.nativePlace}</td>
+                                <td>
+                                    <button class="delete-button" data-id="${student.studentId}">删除</button>
+                                </td>
+                            </tr>`;
+                        tbody.append(row);
+                    });
+                } else {
+                    tbody.append('<tr><td colspan="8">没有找到相关数据</td></tr>');
+                }
+            },
+            error: function(error) {
+                console.error('请求失败:', error);
+                tbody.empty().append('<tr><td colspan="8">请求失败，请重试</td></tr>');
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('.query-form').on('submit', function(event) {
+            event.preventDefault();
+            const studentId = $(this).find('input[name="studentId"]').val();
+            fetchStudentData(studentId);
+        });
+
+        // 使用事件委托绑定删除按钮点击事件
+        $('#student-data').on('click', '.delete-button', function() {
+            const studentId = $(this).data('id');
+            deleteStudent(studentId);
+        });
+    });
+
+    function deleteStudent(studentId) {
+        $.ajax({
+            url: '/student/deleteStudent', // 后端删除接口地址
+            method: 'POST',
+            data: { studentId: studentId },
+            success: function(response) {
+                if (response.code === 200 && response.message === 'success') {
+                    alert('学生信息删除成功');
+                    // 刷新表格
+                    fetchStudentData(studentId);
+                } else {
+                    console.error('删除失败:', response.message);
+                }
+            },
+            error: function(error) {
+                console.error('请求失败:', error);
+            }
+        });
+    }
+</script>
+</body>
+</html>
